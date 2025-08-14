@@ -113,3 +113,28 @@ export function firstScene(arr){
     }
   }
 }
+
+function countWords(str) {
+  return (str || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+export function calculateWordCount(nodeId) {
+  const node = nodeId ? findNode(state.tree, nodeId) : { type: 'project', children: state.tree };
+  if (!node) return 0;
+
+  if (node.type === 'scene') {
+    return countWords(node.content);
+  }
+
+  if (node.type === 'folder' || node.type === 'project') {
+    let total = 0;
+    if (node.children) {
+      for (const child of node.children) {
+        total += calculateWordCount(child.id);
+      }
+    }
+    return total;
+  }
+
+  return 0;
+}

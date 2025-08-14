@@ -8,31 +8,34 @@
 </head>
 <body>
 <header>
-  <h1>MainPlot — v4.0</h1>
+  <h1>MainPlot</h1>
+  <div class="v-separator"></div>
+  <input id="projectTitle" type="text" placeholder="e.g. Ghost Circuit" title="Project title (used in prompts & backups)">
+  <div class="v-separator"></div>
+  <span id="project-wc" class="tag">0 words</span>
+  <div class="v-separator"></div>
   <div class="actions">
+    <button id="backup" class="pill" title="Save full project backup (Ctrl/Cmd+B). If download is blocked, a manual link appears below.">Backup</button>
+    <button id="restore" class="pill" title="Restore from backup file (Ctrl/Cmd+O)">Restore</button>
+    <input id="restoreFile" type="file" accept="application/json" class="hidden" />
+    <div class="v-separator"></div>
     <button id="toggleLeft" class="pill" title="Toggle folders (Ctrl/Cmd+Alt+L)">⟵⟶ Folders</button>
     <button id="toggleRight" class="pill" title="Toggle notes/outline (Ctrl/Cmd+Alt+N)">⟷⟵ Notes</button>
     <button id="helpBtn" class="pill" title="Help (F1 or Shift+/)">❓ Help</button>
-    <span class="tag">Autosave + Backup</span>
   </div>
 </header>
 
 <div class="app">
+  <div id="left-tab" class="dock-tab" data-side="left"><span>P</span><span>r</span><span>o</span><span>j</span><span>e</span><span>c</span><span>t</span></div>
+
   <!-- LEFT: Project title + folders / scenes -->
   <aside id="left" class="panel" aria-label="Project tree">
-    <div class="pad" style="border-bottom:1px solid var(--border)">
-      <label class="small">Project Title</label>
-      <input id="projectTitle" type="text" placeholder="e.g. Ghost Circuit" title="Project title (used in prompts & backups)">
-    </div>
-
     <div class="tree-header">
       <strong>Project</strong>
-      <div class="row">
+      <span id="folder-wc" class="tag"></span>
+      <div id="project-buttons" class="row">
         <button id="addFolder" class="pill" title="Add folder under selected folder or root">📁+</button>
         <button id="addScene"  class="pill" title="Add new scene under selected folder or root">📄+</button>
-        <button id="backup"    class="pill" title="Save full project backup (Ctrl/Cmd+B). If download is blocked, a manual link appears below.">Backup</button>
-        <button id="restore"   class="pill" title="Restore from backup file (Ctrl/Cmd+O)">Restore</button>
-        <input id="restoreFile" type="file" accept="application/json" class="hidden" />
       </div>
     </div>
     <div class="pad" style="padding-top:6px;padding-bottom:0">
@@ -74,6 +77,8 @@
       </div>
     </div>
   </section>
+
+  <div id="right-tab" class="dock-tab" data-side="right"><span>N</span><span>o</span><span>t</span><span>e</span><span>s</span></div>
 
   <!-- RIGHT: notes / style / OUTLINE -->
   <aside id="right" class="panel" aria-label="Notes and Outline">
