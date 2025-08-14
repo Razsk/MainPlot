@@ -1,5 +1,5 @@
 import { store } from './state.js';
-import { hydrateMeta, renderTree, openFirstScene, addEventListeners, updateWC } from './ui.js';
+import { hydrateMeta, renderTree, openFirstScene, addEventListeners, updateAllWordCounts } from './ui.js';
 import { Debug, $ } from './utils.js';
 import { buildPrompt } from './prompt-builder.js';
 
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTree();
     openFirstScene();
     addEventListeners();
-    updateWC();
+    updateAllWordCounts();
   } catch (err) {
     console.error('Init crashed', err);
     Debug.open();

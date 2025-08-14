@@ -1,5 +1,5 @@
 import { $, on, nameDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
-import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent } from './state.js';
+import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
 import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
 
@@ -11,7 +11,8 @@ export const els={
   btnGenOutline:$('btnGenOutline'), btnSceneToOutline:$('btnSceneToOutline'), exportOutline:$('exportOutline'),
   exportTxt:$('exportTxt'), copyPrompt:$('copyPrompt'), copyStatus:$('copyStatus'), toggleLeft:$('toggleLeft'),
   toggleRight:$('toggleRight'), helpBtn:$('helpBtn'), helpModal:$('helpModal'), helpClose:$('helpClose'),
-  backupStatus:$('backupStatus'), backupManual:$('backupManual'), optionsStrip:$('optionsStrip')
+  backupStatus:$('backupStatus'), backupManual:$('backupManual'), optionsStrip:$('optionsStrip'),
+  projectWC:$('project-wc'), folderWC:$('folder-wc')
 };
 
 let lastAction = 'continue';
@@ -24,12 +25,13 @@ function renderNodeToString(n, depth) {
   const isActive = n.id === state.currentId ? ' active' : '';
   const isSelected = n.id === selectedFolderId ? ' selected' : '';
   const icon = n.type === 'folder' ? '📁' : '📄';
+  const wc = n.type === 'folder' ? `<span class="tag">${calculateWordCount(n.id)} words</span>` : '';
   const marginLeft = depth > 0 ? `style="margin-left:${depth * 14}px"` : '';
 
   return `
     <div class="node${isActive}${isSelected}" data-id="${n.id}" draggable="true" ${marginLeft}>
       <span class="icon">${icon}</span>
-      <div class="name">${n.name}</div>
+      <div class="name">${n.name} ${wc}</div>
       <div class="ops">
         <button class="pill" data-op="rename" data-id="${n.id}" title="Rename">✎</button>
         <button class="pill" data-op="delete" data-id="${n.id}" title="Delete">🗑</button>
@@ -65,9 +67,11 @@ function attachTreeEventListeners() {
       openNode(id);
       selectedFolderId = null;
       renderTree();
+      updateAllWordCounts();
     } else {
       selectedFolderId = id;
       renderTree();
+      updateAllWordCounts();
     }
   });
 
@@ -181,6 +185,7 @@ function deleteNode(nid){
   store.setTree(state.tree);
   renderTree();
   openFirstScene();
+  updateAllWordCounts();
 }
 
 function openNode(nid){
@@ -194,13 +199,32 @@ function openNode(nid){
   if(els.scene) { els.scene.style.flex=''; els.scene.style.height=''; }
   if(els.preview) { els.preview.style.flex=''; els.preview.style.height=''; els.preview.value=''; }
   renderTree();
-  updateWC();
+  updateAllWordCounts();
 }
 
-export function updateWC(){
-  if(!els.scene||!els.wc) return;
-  const t=els.scene.value.trim();
-  els.wc.textContent=(t?t.split(/\s+/).length:0)+' words';
+export function updateAllWordCounts() {
+  // Scene WC
+  if (els.scene && els.wc) {
+    const t = els.scene.value.trim();
+    els.wc.textContent = (t ? t.split(/\s+/).length : 0) + ' words';
+  }
+  // Project WC
+  if (els.projectWC) {
+    els.projectWC.textContent = calculateWordCount(null) + ' words';
+  }
+  // Folder WC
+  if (els.folderWC) {
+    if (selectedFolderId) {
+      const node = findNode(store.getState().tree, selectedFolderId);
+      if (node && node.type === 'folder') {
+        els.folderWC.textContent = `(folder: ${calculateWordCount(selectedFolderId)} words)`;
+      } else {
+        els.folderWC.textContent = '';
+      }
+    } else {
+      els.folderWC.textContent = '';
+    }
+  }
 }
 
 function getOpts(action){
@@ -449,7 +473,8 @@ export function addEventListeners(){
     if(!n) return;
     n.content=els.scene.value;
     store.setTree(state.tree);
-    updateWC();
+    updateAllWordCounts();
+    renderTree(); // To update folder counts
   }, 'scene');
 
   on(els.projectTitle,'input', ()=>{
@@ -483,6 +508,10 @@ export function addEventListeners(){
       if(els.preview) els.preview.value=buildPrompt(lastAction);
       buildOptionsUI(lastAction);
       scrollPreviewIntoView();
+
+      // Highlight selected button
+      document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('selected'));
+      b.classList.add('selected');
     }, b.textContent.trim())
   });
 
@@ -607,15 +636,25 @@ export function addEventListeners(){
     },'dragbar_dblclick');
   })();
 
-  on(els.toggleLeft,'click', ()=> {
-    if(!els.left) return;
-    els.left.style.display = (els.left.style.display==='none'?'':'none');
+  const app = document.querySelector('.app');
+  const leftTab = $('left-tab');
+  const rightTab = $('right-tab');
+
+  on(els.toggleLeft, 'click', () => {
+    app.classList.toggle('left-docked');
   }, 'toggleLeft');
 
-  on(els.toggleRight,'click', ()=> {
-    if(!els.right) return;
-    els.right.style.display = (els.right.style.display==='none'?'':'none');
+  on(els.toggleRight, 'click', () => {
+    app.classList.toggle('right-docked');
   }, 'toggleRight');
+
+  on(leftTab, 'click', () => {
+    app.classList.remove('left-docked');
+  });
+
+  on(rightTab, 'click', () => {
+    app.classList.remove('right-docked');
+  });
 
   on(els.helpBtn,'click', openHelp,'helpBtn');
   on(els.helpClose,'click', closeHelp,'helpClose');
