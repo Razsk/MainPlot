@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MainPlot — v4.0 (Two‑Step Actions • Options Strip • Robust Copy)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>MainPlot — v4.0</h1>
+  <div class="actions">
+    <button id="toggleLeft" class="pill" title="Toggle folders (Ctrl/Cmd+Alt+L)">⟵⟶ Folders</button>
+    <button id="toggleRight" class="pill" title="Toggle notes/outline (Ctrl/Cmd+Alt+N)">⟷⟵ Notes</button>
+    <button id="helpBtn" class="pill" title="Help (F1 or Shift+/)">❓ Help</button>
+    <span class="tag">Autosave + Backup</span>
+  </div>
+</header>
+
+<div class="app">
+  <!-- LEFT: Project title + folders / scenes -->
+  <aside id="left" class="panel" aria-label="Project tree">
+    <div class="pad" style="border-bottom:1px solid var(--border)">
+      <label class="small">Project Title</label>
+      <input id="projectTitle" type="text" placeholder="e.g. Ghost Circuit" title="Project title (used in prompts & backups)">
+    </div>
+
+    <div class="tree-header">
+      <strong>Project</strong>
+      <div class="row">
+        <button id="addFolder" class="pill" title="Add folder under selected folder or root">📁+</button>
+        <button id="addScene"  class="pill" title="Add new scene under selected folder or root">📄+</button>
+        <button id="backup"    class="pill" title="Save full project backup (Ctrl/Cmd+B). If download is blocked, a manual link appears below.">Backup</button>
+        <button id="restore"   class="pill" title="Restore from backup file (Ctrl/Cmd+O)">Restore</button>
+        <input id="restoreFile" type="file" accept="application/json" class="hidden" />
+      </div>
+    </div>
+    <div class="pad" style="padding-top:6px;padding-bottom:0">
+      <span id="backupStatus" class="small" aria-live="polite"></span>
+      <a id="backupManual" class="small" download target="_blank">Click here if download didn't start</a>
+    </div>
+    <div id="tree" class="tree" title="Tip: drag items to reorder or nest into folders"></div>
+  </aside>
+
+  <!-- CENTER: editor + preview (resizable) -->
+  <section id="center" class="panel" aria-label="Editor and Prompt">
+    <div class="pad flexcol">
+      <div class="row" style="justify-content:space-between">
+        <input id="title" type="text" placeholder="Untitled scene" style="max-width:520px" title="Scene title" aria-label="Scene title">
+        <div class="row small"><span id="wc" title="Word count">0 words</span></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="toolbar" role="toolbar" aria-label="AI actions">
+        <button class="btn" data-action="continue"  title="Continue the scene (Alt+1)">Continue</button>
+        <button class="btn" data-action="rewrite"   title="Rewrite selection on‑voice (Alt+2)">Rewrite Selection</button>
+        <button class="btn" data-action="expand"    title="Expand selection with vivid detail (Alt+3)">Expand</button>
+        <button class="btn" data-action="conflict"  title="Introduce organic conflict/tension (Alt+4)">Add Conflict</button>
+        <button class="btn" data-action="describe"  title="POV sensory description (Alt+5)">Describe (5 senses)</button>
+        <button class="btn" data-action="summarize" title="Summarize beats/turning point (Alt+6)">Summarize</button>
+        <button class="btn" data-action="brainstorm" title="Brainstorm next beats with tradeoffs (Alt+7)">Brainstorm</button>
+        <button id="copyPrompt" class="pill" style="margin-left:auto" title="Copy prompt to clipboard (Ctrl/Cmd+Shift+C)">Copy to ChatGPT</button>
+        <span id="copyStatus" class="small" aria-live="polite"></span>
+      </div>
+      <div id="optionsStrip" class="options" aria-live="polite"></div>
+
+      <div class="hr"></div>
+
+      <div class="editor-wrap" title="Drag the handle to resize. Double‑click the handle to reset 50/50.">
+        <textarea id="scene" class="area" placeholder="Write your scene here." title="Scene editor"></textarea>
+        <div id="dragbar" title="Drag to resize (double‑click to reset)"></div>
+        <textarea id="preview" class="preview area" placeholder="Your assembled prompt will appear here. You can edit it before copying." spellcheck="false" title="Editable prompt preview"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: notes / style / OUTLINE -->
+  <aside id="right" class="panel" aria-label="Notes and Outline">
+    <div class="pad" style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <label class="small">Project Notes (canon / world / characters)</label>
+        <textarea id="notes" rows="8" placeholder="Key facts to keep canon." title="Project notes"></textarea>
+      </div>
+      <div>
+        <label class="small">Style Guide (voice, tense, constraints)</label>
+        <textarea id="style" rows="6" placeholder="1st‑person present, clipped noir voice." title="Style guide"></textarea>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label class="small">Tone</label>
+          <select id="tone" title="Preferred tone">
+            <option value="">(inherit)</option><option>Neutral</option><option>Suspenseful</option>
+            <option>Romantic</option><option>Whimsical</option><option>Dark</option>
+            <option>Gritty</option><option>Hopeful</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label class="small">Creativity</label>
+          <select id="creativity" title="Creativity level">
+            <option value="balanced">Balanced</option>
+            <option value="precise">Precise</option>
+            <option value="imaginative">Imaginative</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div>
+        <label class="small">Outline (global)</label>
+        <div class="row" style="justify-content:space-between">
+          <label class="small" title="Include a chapter‑relevant slice of the outline in prompts"><input id="outlineEnabled" type="checkbox" checked> Include in prompts</label>
+          <div class="row" style="gap:6px">
+            <button id="btnGenOutline" class="pill" title="Build outline from notes (Ctrl/Cmd+Shift+G)">Generate Outline</button>
+            <button id="btnSceneToOutline" class="pill" title="Turn current scene into outline beats (Ctrl/Cmd+Shift+S)">Summarize Scene → Outline</button>
+            <button id="exportOutline" class="pill" title="Export outline as Markdown">Export .md</button>
+          </div>
+        </div>
+        <textarea id="outline" rows="12" placeholder="# Outline v1
+## Act I
+### Chapter 1: Title
+- Beat: ...
+### Chapter 2: ...
+- Beat: ..." title="Global outline (Markdown with ### Chapter headings)"></textarea>
+      </div>
+
+      <div class="row" style="justify-content:flex-end;gap:8px">
+        <button id="exportTxt" class="pill" title="Export current scene as .txt (Ctrl/Cmd+E)">Export Scene .txt</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Help modal -->
+<div id="helpModal" class="modal" aria-hidden="true" role="dialog" aria-label="Help and Shortcuts">
+  <div class="modal-card">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+      <h2>Help & Shortcuts</h2>
+      <button id="helpClose" class="pill" title="Close (Esc)">Close</button>
+    </div>
+    <p class="small">Two‑step flow: Click a plot button → an editable prompt is built in the preview. A compact options strip appears; click any option to regenerate using that setting. All actions are single left‑clicks. Hotkeys are optional.</p>
+    <div class="hr"></div>
+    <div class="grid">
+      <div>
+        <h3 class="small" style="margin:0 0 6px 0">Trigger AI actions</h3>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">1</span> Continue</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">2</span> Rewrite Selection</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">3</span> Expand</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">4</span> Add Conflict</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">5</span> Describe (5 senses)</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">6</span> Summarize</div>
+        <div class="small"><span class="kbd">Alt</span>+<span class="kbd">7</span> Brainstorm</div>
+      </div>
+      <div>
+        <h3 class="small" style="margin:0 0 6px 0">Build, copy, panels</h3>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">Enter</span> Smart build (Rewrite if text is selected, else last action)</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">⇧</span>+<span class="kbd">C</span> Copy prompt to clipboard</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">Alt</span>+<span class="kbd">L</span> Toggle Folders</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">Alt</span>+<span class="kbd">N</span> Toggle Notes/Outline</div>
+        <div class="small"><span class="kbd">F1</span> or <span class="kbd">Shift</span>+<span class="kbd">?</span> Open Help</div>
+        <div class="small"><span class="kbd">Esc</span> Close Help</div>
+      </div>
+      <div>
+        <h3 class="small" style="margin:0 0 6px 0">Outline tools</h3>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">⇧</span>+<span class="kbd">G</span> Generate Outline</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">⇧</span>+<span class="kbd">S</span> Scene → Outline beats</div>
+      </div>
+      <div>
+        <h3 class="small" style="margin:0 0 6px 0">Backup & export</h3>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">B</span> Backup JSON</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">O</span> Restore JSON</div>
+        <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">E</span> Export current scene .txt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Debug console -->
+<div id="debug" role="region" aria-label="Debug Console">
+  <div class="row" style="justify-content:space-between">
+    <strong>Debug Console</strong>
+    <div class="row">
+      <button id="dbgCopy" class="pill" title="Copy logs">Copy</button>
+      <button id="dbgClear" class="pill" title="Clear logs">Clear</button>
+      <button id="dbgClose" class="pill" title="Close (Ctrl/Cmd+D)">Close</button>
+    </div>
+  </div>
+  <pre id="dbgOut" tabindex="0"></pre>
+</div>
+
+<!-- Name dialog (replaces browser prompt) -->
+<div id="nameModal" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+  <div id="nameCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <h3 id="nameTitle" style="margin:0">Name</h3>
+      <button id="nameClose" class="pill">✕</button>
+    </div>
+    <label for="nameInput" class="small" id="nameLabel">Name</label>
+    <input id="nameInput" type="text" />
+    <div class="row">
+      <button id="nameCancel" class="pill">Cancel</button>
+      <button id="nameOk" class="pill">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- RAW JSON modal (fallback for backup) -->
+<div id="rawModal" aria-modal="true" role="dialog" aria-labelledby="rawTitle">
+  <div id="rawCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <h3 id="rawTitle" style="margin:0">Backup JSON</h3>
+      <button id="rawClose" class="pill">✕</button>
+    </div>
+    <textarea id="rawText" spellcheck="false"></textarea>
+    <div class="row" style="justify-content:flex-end">
+      <button id="rawCopy" class="pill">Copy</button>
+      <button id="rawHide" class="pill">Close</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
