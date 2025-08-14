@@ -187,6 +187,7 @@ function openNode(nid){
   const state = store.getState();
   const n=findNode(state.tree,nid);
   if(!n || n.type!=='scene') return;
+  console.log(`UI: Opening scene: "${n.name}" (id=${nid})`);
   store.setCurrentId(nid);
   if(els.title) els.title.value=n.name;
   if(els.scene) els.scene.value=n.content||'';
@@ -384,6 +385,7 @@ export function openFirstScene(){
 }
 
 export function addEventListeners(){
+  console.log('UI: Attaching event listeners...');
   attachTreeEventListeners();
 
   on(els.addFolder, 'click', async ()=>{
@@ -477,6 +479,7 @@ export function addEventListeners(){
   Array.from(document.querySelectorAll('.btn')).forEach(b=> {
     on(b,'click', ()=>{
       lastAction=b.dataset.action||'continue';
+      console.log(`UI: Action button clicked: ${lastAction}`);
       if(els.preview) els.preview.value=buildPrompt(lastAction);
       buildOptionsUI(lastAction);
       scrollPreviewIntoView();
