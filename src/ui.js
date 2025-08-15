@@ -1,4 +1,4 @@
-import { $, on, nameDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
+import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
 import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
 import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
@@ -10,21 +10,47 @@ export const els={
   tone:$('tone'), creativity:$('creativity'), outline:$('outline'), outlineEnabled:$('outlineEnabled'),
   btnGenOutline:$('btnGenOutline'), btnSceneToOutline:$('btnSceneToOutline'), exportOutline:$('exportOutline'),
   exportTxt:$('exportTxt'), copyPrompt:$('copyPrompt'), copyStatus:$('copyStatus'), toggleLeft:$('toggleLeft'),
-  toggleRight:$('toggleRight'), helpBtn:$('helpBtn'), helpModal:$('helpModal'), helpClose:$('helpClose'),
-  backupStatus:$('backupStatus'), backupManual:$('backupManual'), optionsStrip:$('optionsStrip'),
-  projectWC:$('project-wc'), folderWC:$('folder-wc')
+  toggleRight:$('toggleRight'), themeToggle:$('themeToggle'), helpBtn:$('helpBtn'), helpModal:$('helpModal'),
+  helpClose:$('helpClose'), backupStatus:$('backupStatus'), backupManual:$('backupManual'),
+  optionsStrip:$('optionsStrip'), projectWC:$('project-wc'), folderWC:$('folder-wc')
 };
 
 let lastAction = 'continue';
 let selectedFolderId = null;
 let draggingId=null, dropTarget=null;
 
+export function applySavedTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    if (els.themeToggle) els.themeToggle.textContent = '🌙';
+  } else {
+    document.body.classList.remove('light-theme');
+    if (els.themeToggle) els.themeToggle.textContent = '☀️';
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  if (body.classList.contains('light-theme')) {
+    body.classList.remove('light-theme');
+    localStorage.setItem('theme', 'dark');
+    if (els.themeToggle) els.themeToggle.textContent = '☀️';
+  } else {
+    body.classList.add('light-theme');
+    localStorage.setItem('theme', 'light');
+    if (els.themeToggle) els.themeToggle.textContent = '🌙';
+  }
+}
+
 function renderNodeToString(n, depth) {
   const state = store.getState();
   const childrenHtml = n.type === 'folder' && n.children ? n.children.map(c => renderNodeToString(c, depth + 1)).join('') : '';
   const isActive = n.id === state.currentId ? ' active' : '';
   const isSelected = n.id === selectedFolderId ? ' selected' : '';
-  const icon = n.type === 'folder' ? '📁' : '📄';
+  const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`;
+  const SCENE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+  const icon = n.type === 'folder' ? FOLDER_ICON : SCENE_ICON;
   const wc = n.type === 'folder' ? `<span class="tag">${calculateWordCount(n.id)} words</span>` : '';
   const marginLeft = depth > 0 ? `style="margin-left:${depth * 14}px"` : '';
 
@@ -177,10 +203,19 @@ async function renameNode(nid){
   if(nid===state.currentId && els.title) els.title.value=n.name;
 }
 
-function deleteNode(nid){
-  if(!confirm('Delete item? (Folders delete all children)')) return;
-  removeById(nid);
+async function deleteNode(nid){
   const state = store.getState();
+  const node = findNode(state.tree, nid);
+  if (!node) return;
+
+  const confirmed = await confirmDialog({
+    title: `Delete ${node.type}`,
+    message: `Are you sure you want to delete "${node.name}"?<br><br>This action cannot be undone. If this is a folder, all of its contents will also be permanently deleted.`
+  });
+
+  if (!confirmed) return;
+
+  removeById(nid);
   if(state.currentId===nid) store.setCurrentId(null);
   store.setTree(state.tree);
   renderTree();
@@ -647,6 +682,8 @@ export function addEventListeners(){
   on(els.toggleRight, 'click', () => {
     app.classList.toggle('right-docked');
   }, 'toggleRight');
+
+  on(els.themeToggle, 'click', toggleTheme, 'themeToggle');
 
   on(leftTab, 'click', () => {
     app.classList.remove('left-docked');

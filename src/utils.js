@@ -36,6 +36,20 @@ export function nameDialog({title='Name', label='Name', value='', placeholder=''
   });
 }
 
+/* ===== Confirm dialog ===== */
+export function confirmDialog({title='Confirm', message='Are you sure?'}={}){
+  return new Promise(resolve=>{
+    const modal=$('confirmModal'); const ok=$('confirmOk'); const cancel=$('confirmCancel'); const close=$('confirmClose');
+    if(!modal||!ok||!cancel||!close){ console.warn('Confirm dialog missing elements'); resolve(false); return; }
+    $('confirmTitle').textContent=title; $('confirmMessage').innerHTML=message;
+    function done(val){ modal.classList.remove('open'); modal.removeEventListener('keydown', onKey); resolve(val); }
+    function onKey(e){ if(e.key==='Enter'){ e.preventDefault(); ok.click(); } if(e.key==='Escape'){ e.preventDefault(); cancel.click(); } }
+    ok.onclick=()=> done(true);
+    cancel.onclick=()=> done(false); close.onclick=()=> done(false);
+    modal.classList.add('open'); setTimeout(()=>{ ok.focus(); }, 0); modal.addEventListener('keydown', onKey);
+  });
+}
+
 /* ===== Clipboard & Download ===== */
 export async function copyToClipboard(text){
   try{
