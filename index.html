@@ -21,6 +21,8 @@
     <div class="v-separator"></div>
     <button id="toggleLeft" class="pill" title="Toggle folders (Ctrl/Cmd+Alt+L)">⟵⟶ Folders</button>
     <button id="toggleRight" class="pill" title="Toggle notes/outline (Ctrl/Cmd+Alt+N)">⟷⟵ Notes</button>
+    <button id="themeToggle" class="pill" title="Toggle light/dark theme">☀️</button>
+    <div class="v-separator"></div>
     <button id="helpBtn" class="pill" title="Help (F1 or Shift+/)">❓ Help</button>
   </div>
 </header>
@@ -177,6 +179,21 @@
         <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">O</span> Restore JSON</div>
         <div class="small"><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">E</span> Export current scene .txt</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div id="confirmCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <h3 id="confirmTitle" style="margin:0">Confirm</h3>
+      <button id="confirmClose" class="pill">✕</button>
+    </div>
+    <p id="confirmMessage">Are you sure?</p>
+    <div class="row" style="justify-content:flex-end">
+      <button id="confirmCancel" class="pill">Cancel</button>
+      <button id="confirmOk" class="pill">OK</button>
     </div>
   </div>
 </div>
