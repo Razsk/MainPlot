@@ -725,7 +725,7 @@ export function addEventListeners(){
       return;
     }
     if(e.altKey && !(e.ctrlKey || e.metaKey)){
-      const map={ '1':'continue','2':'rewrite','3':'expand','4':'conflict','5':'describe','6':'summarize','7':'brainstorm' };
+      const map={ '1':'continue','2':'rewrite','3':'expand','4':'conflict','5':'describe','6':'summarize','7':'brainstorm','8':'critique' };
       if(map[e.key]){
         e.preventDefault();
         lastAction=map[e.key];

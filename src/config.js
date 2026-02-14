@@ -7,7 +7,8 @@ export const DEFAULT_OPTS={
   conflict:{ type:'interpersonal', intensity:'moderate' },
   describe:{ mode:'cinematic', focus:'mixed' },
   summarize:{ format:'bullets', scope:'scene' },
-  brainstorm:{ count:'5', spice:'fresh' }
+  brainstorm:{ count:'5', spice:'fresh' },
+  critique:{ focus:'overall', depth:'balanced' }
 };
 
 export const OPTION_SPECS={
@@ -38,5 +39,9 @@ export const OPTION_SPECS={
   brainstorm:{
     count:[['3','3 ideas'],['5','5 ideas'],['8','8 ideas']],
     spice:[['safe','Safe'],['fresh','Fresh'],['wild','Wild']]
+  },
+  critique:{
+    focus:[['overall','Overall'],['pacing','Pacing'],['dialogue','Dialogue'],['character','Character']],
+    depth:[['quick','Quick Scan'],['balanced','Balanced'],['deep','Deep Dive']]
   }
 };

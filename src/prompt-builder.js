@@ -36,6 +36,7 @@ function optionsToText(action,opt){
     case 'describe': return `PREFERENCES: Style: ${opt.mode}. Sensory focus: ${opt.focus}.`;
     case 'summarize': return `PREFERENCES: Format: ${opt.format}. Scope: ${opt.scope}.`;
     case 'brainstorm': return `PREFERENCES: Provide ${opt.count} ideas with ${opt.spice} risk level.`;
+    case 'critique': return `PREFERENCES: Focus: ${opt.focus}. Depth: ${opt.depth}.`;
     default: return '';
   }
 }
@@ -108,6 +109,7 @@ export function buildPrompt(action){
     case 'describe': task='TASK: Sensory description grounded in POV (sight/sound/smell/touch/taste as appropriate).'; break;
     case 'summarize': task='TASK: Summarize the scene in 5 bullets: beats, goals, conflict, turning point, open questions.'; break;
     case 'brainstorm': task='TASK: Brainstorm distinct next‑beat options (1–2 sentences each). Include tradeoffs. Keep within canon.'; break;
+    case 'critique': task='TASK: Act as a critique partner. Analyze the text for weaknesses and opportunities based on the focus. Be constructive.'; break;
     default: task='TASK: Continue the scene, matching voice and cadence.';
   }
   const sel=c.selection? `SELECTION:\n${c.selection}` : '(No selection provided.)';
