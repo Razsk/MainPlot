@@ -1,5 +1,5 @@
 import { store, findNode } from './state.js';
-import { DEFAULT_OPTS, OPTION_SPECS } from './config.js';
+import { DEFAULT_OPTS, OPTION_SPECS, MAX_OUTLINE_SUMMARY_CHARS } from './config.js';
 import { $ } from './utils.js';
 
 function getOpts(action){
@@ -93,7 +93,7 @@ export function buildPrompt(action){
     if(chapter){
       outlineBlock=`OUTLINE (chapter‑relevant):\n${chapter}`;
     } else {
-      const shorty=trimOutline(state.meta.outline, 900);
+      const shorty=trimOutline(state.meta.outline, MAX_OUTLINE_SUMMARY_CHARS);
       if(shorty) outlineBlock=`OUTLINE (summary):\n${shorty}`;
     }
   }

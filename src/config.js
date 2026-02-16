@@ -1,5 +1,7 @@
 export const LS_KEY='mainplot_v40_state';
 
+export const MAX_OUTLINE_SUMMARY_CHARS = 900;
+
 export const DEFAULT_OPTS={
   continue:{ length:'medium', tempo:'steady' },
   rewrite:{ strength:'medium', focus:'voice' },
