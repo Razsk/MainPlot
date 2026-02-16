@@ -1,4 +1,5 @@
 export const LS_KEY='mainplot_v40_state';
+export const THEME_KEY='theme';
 
 export const DEFAULT_OPTS={
   continue:{ length:'medium', tempo:'steady' },

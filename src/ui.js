@@ -1,7 +1,7 @@
 import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
 import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
-import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
+import { OPTION_SPECS, DEFAULT_OPTS, THEME_KEY } from './config.js';
 
 export const els={
   left:$('left'), right:$('right'), tree:$('tree'), addFolder:$('addFolder'), addScene:$('addScene'),
@@ -20,7 +20,7 @@ let selectedFolderId = null;
 let draggingId=null, dropTarget=null;
 
 export function applySavedTheme() {
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = localStorage.getItem(THEME_KEY);
   if (savedTheme === 'light') {
     document.body.classList.add('light-theme');
     if (els.themeToggle) els.themeToggle.textContent = '🌙';
@@ -34,11 +34,11 @@ function toggleTheme() {
   const body = document.body;
   if (body.classList.contains('light-theme')) {
     body.classList.remove('light-theme');
-    localStorage.setItem('theme', 'dark');
+    localStorage.setItem(THEME_KEY, 'dark');
     if (els.themeToggle) els.themeToggle.textContent = '☀️';
   } else {
     body.classList.add('light-theme');
-    localStorage.setItem('theme', 'light');
+    localStorage.setItem(THEME_KEY, 'light');
     if (els.themeToggle) els.themeToggle.textContent = '🌙';
   }
 }
