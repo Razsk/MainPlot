@@ -28,6 +28,17 @@ function save(){
   }
 }
 
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+const debouncedSave = debounce(save, 1000);
+
 export const store = {
   init() {
     state = load() || makeDefaultState();
@@ -37,24 +48,24 @@ export const store = {
   },
   setState(newState) {
     state = { ...state, ...newState };
-    save();
+    debouncedSave();
   },
   setMeta(newMeta) {
     state.meta = { ...state.meta, ...newMeta };
-    save();
+    debouncedSave();
   },
   setActionOption(action, key, val) {
     state.meta.actionOptions = state.meta.actionOptions || {};
     state.meta.actionOptions[action] = Object.assign({}, state.meta.actionOptions[action], {[key]:val});
-    save();
+    debouncedSave();
   },
   setCurrentId(id) {
     state.currentId = id;
-    save();
+    debouncedSave();
   },
   setTree(tree) {
     state.tree = tree;
-    save();
+    debouncedSave();
   }
 };
 
