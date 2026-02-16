@@ -43,28 +43,66 @@ function toggleTheme() {
   }
 }
 
-function renderNodeToString(n, depth) {
+function renderNode(n, depth) {
   const state = store.getState();
-  const childrenHtml = n.type === 'folder' && n.children ? n.children.map(c => renderNodeToString(c, depth + 1)).join('') : '';
-  const isActive = n.id === state.currentId ? ' active' : '';
-  const isSelected = n.id === selectedFolderId ? ' selected' : '';
+  const els = [];
+
+  const nodeEl = document.createElement('div');
+  const classes = ['node'];
+  if (n.id === state.currentId) classes.push('active');
+  if (n.id === selectedFolderId) classes.push('selected');
+  nodeEl.className = classes.join(' ');
+  nodeEl.dataset.id = n.id;
+  nodeEl.draggable = true;
+  if (depth > 0) nodeEl.style.marginLeft = `${depth * 14}px`;
+
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'icon';
   const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`;
   const SCENE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
-  const icon = n.type === 'folder' ? FOLDER_ICON : SCENE_ICON;
-  const wc = n.type === 'folder' ? `<span class="tag">${calculateWordCount(n.id)} words</span>` : '';
-  const marginLeft = depth > 0 ? `style="margin-left:${depth * 14}px"` : '';
+  iconSpan.innerHTML = n.type === 'folder' ? FOLDER_ICON : SCENE_ICON;
+  nodeEl.appendChild(iconSpan);
 
-  return `
-    <div class="node${isActive}${isSelected}" data-id="${n.id}" draggable="true" ${marginLeft}>
-      <span class="icon">${icon}</span>
-      <div class="name">${n.name} ${wc}</div>
-      <div class="ops">
-        <button class="pill" data-op="rename" data-id="${n.id}" title="Rename">✎</button>
-        <button class="pill" data-op="delete" data-id="${n.id}" title="Delete">🗑</button>
-      </div>
-    </div>
-    ${childrenHtml}
-  `;
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'name';
+  nameDiv.textContent = n.name + ' ';
+  if (n.type === 'folder') {
+    const wcSpan = document.createElement('span');
+    wcSpan.className = 'tag';
+    wcSpan.textContent = `${calculateWordCount(n.id)} words`;
+    nameDiv.appendChild(wcSpan);
+  }
+  nodeEl.appendChild(nameDiv);
+
+  const opsDiv = document.createElement('div');
+  opsDiv.className = 'ops';
+
+  const renameBtn = document.createElement('button');
+  renameBtn.className = 'pill';
+  renameBtn.dataset.op = 'rename';
+  renameBtn.dataset.id = n.id;
+  renameBtn.title = 'Rename';
+  renameBtn.textContent = '✎';
+  opsDiv.appendChild(renameBtn);
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'pill';
+  deleteBtn.dataset.op = 'delete';
+  deleteBtn.dataset.id = n.id;
+  deleteBtn.title = 'Delete';
+  deleteBtn.textContent = '🗑';
+  opsDiv.appendChild(deleteBtn);
+
+  nodeEl.appendChild(opsDiv);
+  els.push(nodeEl);
+
+  if (n.type === 'folder' && n.children) {
+    n.children.forEach(c => {
+      els.push(...renderNode(c, depth + 1));
+    });
+  }
+
+  return els;
 }
 
 function attachTreeEventListeners() {
@@ -417,7 +455,17 @@ export function renderTree(){
   const state = store.getState();
   if(!Array.isArray(state.tree)) state.tree=[];
   if(!els.tree) return;
-  els.tree.innerHTML = state.tree.map(n => renderNodeToString(n, 0)).join('');
+
+  els.tree.innerHTML = '';
+
+  const allElements = [];
+  state.tree.forEach(n => {
+    allElements.push(...renderNode(n, 0));
+  });
+
+  const fragment = document.createDocumentFragment();
+  allElements.forEach(el => fragment.appendChild(el));
+  els.tree.appendChild(fragment);
 }
 
 export function hydrateMeta(){
