@@ -115,3 +115,17 @@ export function toastBackup(msg, cls){
   clearTimeout(toastBackup._t);
   toastBackup._t=setTimeout(()=> { if(el) el.textContent=''; }, 5000);
 }
+
+/* ===== HTML Escaping ===== */
+export function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function(m) {
+    switch (m) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#039;';
+    }
+  });
+}

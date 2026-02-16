@@ -1,4 +1,4 @@
-import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
+import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id, escapeHtml } from './utils.js';
 import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
 import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
@@ -57,7 +57,7 @@ function renderNodeToString(n, depth) {
   return `
     <div class="node${isActive}${isSelected}" data-id="${n.id}" draggable="true" ${marginLeft}>
       <span class="icon">${icon}</span>
-      <div class="name">${n.name} ${wc}</div>
+      <div class="name">${escapeHtml(n.name)} ${wc}</div>
       <div class="ops">
         <button class="pill" data-op="rename" data-id="${n.id}" title="Rename">✎</button>
         <button class="pill" data-op="delete" data-id="${n.id}" title="Delete">🗑</button>
@@ -210,7 +210,7 @@ async function deleteNode(nid){
 
   const confirmed = await confirmDialog({
     title: `Delete ${node.type}`,
-    message: `Are you sure you want to delete "${node.name}"?<br><br>This action cannot be undone. If this is a folder, all of its contents will also be permanently deleted.`
+    message: `Are you sure you want to delete "${escapeHtml(node.name)}"?<br><br>This action cannot be undone. If this is a folder, all of its contents will also be permanently deleted.`
   });
 
   if (!confirmed) return;
