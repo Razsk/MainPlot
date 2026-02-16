@@ -1,5 +1,15 @@
 export const LS_KEY='mainplot_v40_state';
 
+export const KEYBOARD_SHORTCUTS={
+  '1':'continue',
+  '2':'rewrite',
+  '3':'expand',
+  '4':'conflict',
+  '5':'describe',
+  '6':'summarize',
+  '7':'brainstorm'
+};
+
 export const DEFAULT_OPTS={
   continue:{ length:'medium', tempo:'steady' },
   rewrite:{ strength:'medium', focus:'voice' },
