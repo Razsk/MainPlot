@@ -1,7 +1,11 @@
 /* ===== Helpers ===== */
 export const $ = (id) => document.getElementById(id);
 export const on = (el, evt, handler, name) => { if(el && el.addEventListener){ el.addEventListener(evt, handler); } else { console.warn('Listener skipped (missing el):', name || (el && el.id) || evt); } };
-export const id = () => 'n'+Math.random().toString(36).slice(2,9);
+export const id = () => {
+  const arr = new Uint32Array(2);
+  (window.crypto || crypto).getRandomValues(arr);
+  return 'n' + (arr[0].toString(36) + arr[1].toString(36)).slice(0, 7);
+};
 
 /* ===== Debug Console (safe init) ===== */
 export const Debug = (() => {
