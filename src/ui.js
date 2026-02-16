@@ -1,7 +1,7 @@
 import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
 import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
-import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
+import { OPTION_SPECS, DEFAULT_OPTS, KEYBOARD_SHORTCUTS } from './config.js';
 
 export const els={
   left:$('left'), right:$('right'), tree:$('tree'), addFolder:$('addFolder'), addScene:$('addScene'),
@@ -725,10 +725,9 @@ export function addEventListeners(){
       return;
     }
     if(e.altKey && !(e.ctrlKey || e.metaKey)){
-      const map={ '1':'continue','2':'rewrite','3':'expand','4':'conflict','5':'describe','6':'summarize','7':'brainstorm' };
-      if(map[e.key]){
+      if(KEYBOARD_SHORTCUTS[e.key]){
         e.preventDefault();
-        lastAction=map[e.key];
+        lastAction=KEYBOARD_SHORTCUTS[e.key];
         if(els.preview) els.preview.value=buildPrompt(lastAction);
         buildOptionsUI(lastAction);
         scrollPreviewIntoView();
