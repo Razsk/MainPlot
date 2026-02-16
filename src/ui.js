@@ -210,7 +210,7 @@ async function deleteNode(nid){
 
   const confirmed = await confirmDialog({
     title: `Delete ${node.type}`,
-    message: `Are you sure you want to delete "${node.name}"?<br><br>This action cannot be undone. If this is a folder, all of its contents will also be permanently deleted.`
+    message: `Are you sure you want to delete "${node.name}"?\n\nThis action cannot be undone. If this is a folder, all of its contents will also be permanently deleted.`
   });
 
   if (!confirmed) return;
