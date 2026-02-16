@@ -81,6 +81,7 @@ export function downloadBlob(blob, name){
   showManualDownload(url, name);
 }
 
+const MANUAL_DOWNLOAD_TIMEOUT = 60000;
 let _manualTimer=null, _lastUrl=null;
 function showManualDownload(url, name){
   try{
@@ -96,7 +97,7 @@ function showManualDownload(url, name){
     _manualTimer=setTimeout(()=>{
       link.style.display='none';
       try{ URL.revokeObjectURL(url); }catch{}
-    }, 60000);
+    }, MANUAL_DOWNLOAD_TIMEOUT);
   }catch(err){
     console.error('Manual link setup failed',err);
   }
