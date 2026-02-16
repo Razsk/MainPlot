@@ -41,7 +41,10 @@ export function confirmDialog({title='Confirm', message='Are you sure?'}={}){
   return new Promise(resolve=>{
     const modal=$('confirmModal'); const ok=$('confirmOk'); const cancel=$('confirmCancel'); const close=$('confirmClose');
     if(!modal||!ok||!cancel||!close){ console.warn('Confirm dialog missing elements'); resolve(false); return; }
-    $('confirmTitle').textContent=title; $('confirmMessage').innerHTML=message;
+    $('confirmTitle').textContent=title;
+    const msgEl = $('confirmMessage');
+    msgEl.textContent=message;
+    msgEl.style.whiteSpace='pre-wrap';
     function done(val){ modal.classList.remove('open'); modal.removeEventListener('keydown', onKey); resolve(val); }
     function onKey(e){ if(e.key==='Enter'){ e.preventDefault(); ok.click(); } if(e.key==='Escape'){ e.preventDefault(); cancel.click(); } }
     ok.onclick=()=> done(true);
