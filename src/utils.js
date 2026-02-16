@@ -2,6 +2,19 @@
 export const $ = (id) => document.getElementById(id);
 export const on = (el, evt, handler, name) => { if(el && el.addEventListener){ el.addEventListener(evt, handler); } else { console.warn('Listener skipped (missing el):', name || (el && el.id) || evt); } };
 export const id = () => 'n'+Math.random().toString(36).slice(2,9);
+export function escapeHTML(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, function(m) {
+    switch (m) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#039;';
+      default: return m;
+    }
+  });
+}
 
 /* ===== Debug Console (safe init) ===== */
 export const Debug = (() => {
