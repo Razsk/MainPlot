@@ -27,17 +27,19 @@ function collectContext(){
   };
 }
 
-function optionsToText(action,opt){
-  switch(action){
-    case 'continue': return `PREFERENCES: Target length: ${ opt.length==='short'?'2–3 paragraphs': opt.length==='long'?'~600 words':'3–5 paragraphs' }. Tempo: ${opt.tempo}.`;
-    case 'rewrite': return `PREFERENCES: Rewrite strength: ${opt.strength}. Primary focus: ${opt.focus}.`;
-    case 'expand': return `PREFERENCES: Add ${opt.size==='sentences'?'+3–5 sentences':'+1–2 paragraphs'} focusing on ${opt.focus}.`;
-    case 'conflict': return `PREFERENCES: Conflict type: ${opt.type}. Intensity: ${opt.intensity}.`;
-    case 'describe': return `PREFERENCES: Style: ${opt.mode}. Sensory focus: ${opt.focus}.`;
-    case 'summarize': return `PREFERENCES: Format: ${opt.format}. Scope: ${opt.scope}.`;
-    case 'brainstorm': return `PREFERENCES: Provide ${opt.count} ideas with ${opt.spice} risk level.`;
-    default: return '';
-  }
+const ACTION_PREFERENCES = {
+  continue: (opt) => `Target length: ${opt.length === 'short' ? '2–3 paragraphs' : opt.length === 'long' ? '~600 words' : '3–5 paragraphs'}. Tempo: ${opt.tempo}.`,
+  rewrite: (opt) => `Rewrite strength: ${opt.strength}. Primary focus: ${opt.focus}.`,
+  expand: (opt) => `Add ${opt.size === 'sentences' ? '+3–5 sentences' : '+1–2 paragraphs'} focusing on ${opt.focus}.`,
+  conflict: (opt) => `Conflict type: ${opt.type}. Intensity: ${opt.intensity}.`,
+  describe: (opt) => `Style: ${opt.mode}. Sensory focus: ${opt.focus}.`,
+  summarize: (opt) => `Format: ${opt.format}. Scope: ${opt.scope}.`,
+  brainstorm: (opt) => `Provide ${opt.count} ideas with ${opt.spice} risk level.`
+};
+
+export function optionsToText(action, opt) {
+  const formatter = ACTION_PREFERENCES[action];
+  return formatter ? `PREFERENCES: ${formatter(opt)}` : '';
 }
 
 function extractChapterSection(outline,sceneName){
