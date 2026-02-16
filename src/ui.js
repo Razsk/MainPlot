@@ -1,7 +1,7 @@
 import { $, on, nameDialog, confirmDialog, copyToClipboard, downloadBlob, logBackup, toastBackup, id } from './utils.js';
 import { store, findNode, removeById, isDescendant, insertAt, firstScene, findParent, calculateWordCount } from './state.js';
 import { buildPrompt } from './prompt-builder.js';
-import { OPTION_SPECS, DEFAULT_OPTS } from './config.js';
+import { OPTION_SPECS, DEFAULT_OPTS, LIGHT_THEME_CLASS } from './config.js';
 
 export const els={
   left:$('left'), right:$('right'), tree:$('tree'), addFolder:$('addFolder'), addScene:$('addScene'),
@@ -22,22 +22,22 @@ let draggingId=null, dropTarget=null;
 export function applySavedTheme() {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'light') {
-    document.body.classList.add('light-theme');
+    document.body.classList.add(LIGHT_THEME_CLASS);
     if (els.themeToggle) els.themeToggle.textContent = '🌙';
   } else {
-    document.body.classList.remove('light-theme');
+    document.body.classList.remove(LIGHT_THEME_CLASS);
     if (els.themeToggle) els.themeToggle.textContent = '☀️';
   }
 }
 
 function toggleTheme() {
   const body = document.body;
-  if (body.classList.contains('light-theme')) {
-    body.classList.remove('light-theme');
+  if (body.classList.contains(LIGHT_THEME_CLASS)) {
+    body.classList.remove(LIGHT_THEME_CLASS);
     localStorage.setItem('theme', 'dark');
     if (els.themeToggle) els.themeToggle.textContent = '☀️';
   } else {
-    body.classList.add('light-theme');
+    body.classList.add(LIGHT_THEME_CLASS);
     localStorage.setItem('theme', 'light');
     if (els.themeToggle) els.themeToggle.textContent = '🌙';
   }

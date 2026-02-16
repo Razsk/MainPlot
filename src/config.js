@@ -40,3 +40,4 @@ export const OPTION_SPECS={
     spice:[['safe','Safe'],['fresh','Fresh'],['wild','Wild']]
   }
 };
+export const LIGHT_THEME_CLASS = 'light-theme';
